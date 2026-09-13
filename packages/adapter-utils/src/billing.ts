@@ -14,7 +14,16 @@ export function inferOpenAiCompatibleBiller(
     readEnv(env, "OPENAI_BASE_URL") ??
     readEnv(env, "OPENAI_API_BASE") ??
     readEnv(env, "OPENAI_API_BASE_URL");
-  if (baseUrl && /openrouter\.ai/i.test(baseUrl)) return "openrouter";
+  if (baseUrl) {
+    try {
+      const url = new URL(baseUrl);
+      if ((url.protocol === "http:" || url.protocol === "https:") && url.hostname.toLowerCase() === "openrouter.ai") {
+        return "openrouter";
+      }
+    } catch {
+      // Malformed URLs use the configured fallback.
+    }
+  }
 
   return fallback;
 }
